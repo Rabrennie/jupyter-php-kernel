@@ -1,0 +1,17 @@
+{
+    "require": {
+        "ext-zmq": "*",
+        "ramsey/uuid": "^4.1",
+        "react/zmq": "^0.4.0"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    },
+    "autoload": {
+        "psr-4": {
+            "JupyterPhpKernel\\": "src/"
+        }
+    }
+}
