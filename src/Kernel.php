@@ -9,6 +9,8 @@ use React\EventLoop\LoopInterface;
 use React\ZMQ\Context;
 use Ramsey\Uuid\Uuid;
 use React\ZMQ\SocketWrapper;
+use Psy\Shell;
+use Psy\Configuration;
 
 class Kernel
 {
@@ -20,10 +22,14 @@ class Kernel
   private SocketWrapper $iopub_socket;
   private SocketWrapper $shell_socket;
 
+  public int $execution_count = 0;
+  public Shell $shell;
+
   public function __construct(ConnectionDetails $connection_details)
   {
     $this->connection_details = $connection_details;
     $this->session_id = Uuid::uuid4()->toString();
+    $this->shell = new Shell($this->getConfig());
   }
 
   public function run()
@@ -66,9 +72,32 @@ class Kernel
     $this->iopub_socket->send($response->toMessage($this->connection_details->key, $this->connection_details->signature_scheme));
   }
 
+  public function sendExecuteResultMessage(array $content, array $header)
+  {
+
+    $response = new Response('execute_result', $this->session_id, $content, $header);
+    $this->iopub_socket->send($response->toMessage($this->connection_details->key, $this->connection_details->signature_scheme));
+  }
+
   public function sendShellMessage(Response $response)
   {
     $message = $response->toMessage($this->connection_details->key, $this->connection_details->signature_scheme);
     $this->shell_socket->send($message);
+  }
+
+  private function getConfig(array $config = [])
+  {
+    // Mebbe there's a better way than this?
+    $dir = \tempnam(\sys_get_temp_dir(), 'psysh_shell_test_');
+    \unlink($dir);
+
+    $defaults = [
+      'configDir'  => $dir,
+      'dataDir'    => $dir,
+      'runtimeDir' => $dir,
+      'colorMode'  => Configuration::COLOR_MODE_FORCED,
+    ];
+
+    return new Configuration(\array_merge($defaults, $config));
   }
 }

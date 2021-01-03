@@ -1,6 +1,7 @@
 {
     "require": {
         "ext-zmq": "*",
+        "psy/psysh": "^0.10.5",
         "ramsey/uuid": "^4.1",
         "react/zmq": "^0.4.0"
     },
