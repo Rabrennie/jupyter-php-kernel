@@ -3,6 +3,7 @@
 namespace JupyterPhpKernel\Responses;
 
 use DateTime;
+use JupyterPhpKernel\Requests\Request;
 use Ramsey\Uuid\Uuid;
 
 class Response
@@ -19,19 +20,19 @@ class Response
   protected array $metadata = [];
   protected array $ids = [];
 
-  public function __construct(string $type, string $session_id, array $content = [], array $parent_header = [], array $metadata = [], array $ids = [])
+  public function __construct(string $type, Request $request, array $content = [], array $metadata = [])
   {
     $this->type = $type;
     $this->content = $content;
-    $this->parent_header = $parent_header;
+    $this->parent_header = $request->header;
     $this->metadata = $metadata;
-    $this->ids = $ids;
+    $this->ids = $request->ids;
 
     $this->header = [
       'date' => (new DateTime())->format('c'),
       'msg_id' => Uuid::uuid4()->toString(),
       'username' => 'kernel',
-      'session' => $session_id,
+      'session' => $request->session_id,
       'msg_type' => $this->type,
       'version' => '5.3'
     ];

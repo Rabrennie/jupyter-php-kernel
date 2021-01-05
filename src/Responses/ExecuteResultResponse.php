@@ -2,9 +2,11 @@
 
 namespace JupyterPhpKernel\Responses;
 
+use JupyterPhpKernel\Requests\Request;
+
 class ExecuteResultResponse extends Response
 {
-  public function __construct(int $execution_count, string $result, string $session_id, array $parent_header = [], array $ids = [])
+  public function __construct(int $execution_count, string $result, Request $request)
   {
     $content = [
       'execution_count' => $execution_count,
@@ -13,6 +15,6 @@ class ExecuteResultResponse extends Response
       ],
     ];
 
-    parent::__construct(self::EXECUTE_RESULT, $session_id, $content, $parent_header, [], $ids);
+    parent::__construct(self::EXECUTE_RESULT, $request, $content);
   }
 }

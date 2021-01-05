@@ -2,11 +2,13 @@
 
 namespace JupyterPhpKernel\Responses;
 
+use JupyterPhpKernel\Requests\Request;
+
 class StatusResponse extends Response
 {
-  public function __construct(string $status, string $session_id, array $parent_header = [])
+  public function __construct(string $status, Request $request)
   {
     $content = ['execution_state' => $status];
-    parent::__construct(self::STATUS, $session_id, $content, $parent_header, [], []);
+    parent::__construct(self::STATUS, $request, $content);
   }
 }

@@ -3,6 +3,7 @@
 namespace JupyterPhpKernel;
 
 use JupyterPhpKernel\Handlers\ShellMessageHandler;
+use JupyterPhpKernel\Requests\Request;
 use JupyterPhpKernel\Responses\ExecuteResultResponse;
 use JupyterPhpKernel\Responses\Response;
 use JupyterPhpKernel\Responses\StatusResponse;
@@ -62,21 +63,21 @@ class Kernel
         return;
       }
 
-      $handler->handle($msg, $this);
+      $handler->handle(new Request($msg, $this->session_id));
     });
 
     return $socket;
   }
 
-  public function sendStatusMessage(string $status, array $header)
+  public function sendStatusMessage(string $status, Request $request)
   {
-    $response = new StatusResponse($status, $this->session_id, $header);
+    $response = new StatusResponse($status, $request);
     $this->iopub_socket->send($response->toMessage($this->connection_details->key, $this->connection_details->signature_scheme));
   }
 
-  public function sendExecuteResultMessage(int $execution_count, string $result, array $header)
+  public function sendExecuteResultMessage(int $execution_count, string $result, Request $request)
   {
-    $response = new ExecuteResultResponse($execution_count, $result, $this->session_id, $header);
+    $response = new ExecuteResultResponse($execution_count, $result, $request);
     $this->iopub_socket->send($response->toMessage($this->connection_details->key, $this->connection_details->signature_scheme));
   }
 

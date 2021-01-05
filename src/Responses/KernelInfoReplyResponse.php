@@ -2,9 +2,11 @@
 
 namespace JupyterPhpKernel\Responses;
 
+use JupyterPhpKernel\Requests\Request;
+
 class KernelInfoReplyResponse extends Response
 {
-  public function __construct(string $session_id, array $parent_header = [], array $ids = [])
+  public function __construct(Request $request)
   {
     $content = [
       'protocol_version' => '5.3',
@@ -21,6 +23,6 @@ class KernelInfoReplyResponse extends Response
       'status' => 'ok',
     ];
 
-    parent::__construct(self::KERNEL_INFO_REPLY, $session_id, $content, $parent_header, [], $ids);
+    parent::__construct(self::KERNEL_INFO_REPLY, $request, $content);
   }
 }
