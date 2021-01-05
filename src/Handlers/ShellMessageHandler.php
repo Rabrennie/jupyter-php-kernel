@@ -2,6 +2,7 @@
 
 namespace JupyterPhpKernel\Handlers;
 
+use Exception;
 use JupyterPhpKernel\Kernel;
 use JupyterPhpKernel\Requests\Request;
 use JupyterPhpKernel\Responses\ExecuteReplyResponse;
@@ -41,7 +42,7 @@ class ShellMessageHandler
                 $this->kernel->shell->writeReturnValue($ret, true);
                 \rewind($stream);
                 $output = \stream_get_contents($stream);
-            } catch (FatalErrorException $e) {
+            } catch (Exception $e) {
                 $output = $e->getMessage();
             }
             $this->kernel->sendIOPubMessage(
