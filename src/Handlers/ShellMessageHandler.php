@@ -38,6 +38,7 @@ class ShellMessageHandler
             $this->kernel->shell->setOutput($output);
             try {
                 $ret = $this->kernel->shell->execute($request->content['code']);
+                $this->kernel->shell->writeReturnValue($ret, true);
                 \rewind($stream);
                 $output = \stream_get_contents($stream);
             } catch (FatalErrorException $e) {
