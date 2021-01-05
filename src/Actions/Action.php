@@ -4,5 +4,5 @@ namespace JupyterPhpKernel\Actions;
 
 class Action
 {
-  
+
 }

@@ -11,8 +11,8 @@ use Symfony\Component\Console\Output\StreamOutput;
 
 class ShellMessageHandler
 {
-    const KERNEL_INFO_REQUEST = 'kernel_info_request';
-    const EXECUTE_REQUEST = 'execute_request';
+    public const KERNEL_INFO_REQUEST = 'kernel_info_request';
+    public const EXECUTE_REQUEST = 'execute_request';
 
     private Kernel $kernel;
 
@@ -38,9 +38,10 @@ class ShellMessageHandler
             $this->kernel->shell->execute($request->content['code']);
             \rewind($stream);
             $streamContents = \stream_get_contents($stream);
-            $response = new ExecuteReplyResponse(++$this->kernel->execution_count, 'ok', $request);
-            $this->kernel->sendIOPubMessage(new ExecuteResultResponse($this->kernel->execution_count, $streamContents, $request));
-            $this->kernel->sendShellMessage($response);
+            $this->kernel->sendIOPubMessage(
+                new ExecuteResultResponse($this->kernel->execution_count, $streamContents, $request)
+            );
+            $this->kernel->sendShellMessage(new ExecuteReplyResponse(++$this->kernel->execution_count, 'ok', $request));
             $this->kernel->sendStatusMessage('idle', $request);
         }
     }

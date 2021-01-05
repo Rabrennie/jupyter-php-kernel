@@ -40,7 +40,11 @@ class Kernel
         $this->loop = Factory::create();
         $this->context = new Context($this->loop);
 
-        $this->shell_socket = $this->createSocket(\ZMQ::SOCKET_ROUTER, $this->connection_details->shell_address, new ShellMessageHandler($this));
+        $this->shell_socket = $this->createSocket(
+            \ZMQ::SOCKET_ROUTER,
+            $this->connection_details->shell_address,
+            new ShellMessageHandler($this)
+        );
         $this->iopub_socket = $this->createSocket(\ZMQ::SOCKET_PUB, $this->connection_details->iopub_address);
         $stdin_socket = $this->createSocket(\ZMQ::SOCKET_ROUTER, $this->connection_details->stdin_address);
         $control_socket = $this->createSocket(\ZMQ::SOCKET_ROUTER, $this->connection_details->control_address);

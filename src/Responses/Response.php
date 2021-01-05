@@ -8,10 +8,10 @@ use Ramsey\Uuid\Uuid;
 
 class Response
 {
-    const KERNEL_INFO_REPLY = 'kernel_info_reply';
-    const STATUS = 'status';
-    const EXECUTE_REPLY = 'execute_reply';
-    const EXECUTE_RESULT = 'execute_result';
+    public const KERNEL_INFO_REPLY = 'kernel_info_reply';
+    public const STATUS = 'status';
+    public const EXECUTE_REPLY = 'execute_reply';
+    public const EXECUTE_RESULT = 'execute_result';
 
     protected string $type;
     protected array $content = [];
