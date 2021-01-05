@@ -58,7 +58,7 @@ class Kernel
       echo ($e->getMessage());
     });
 
-    $socket->on('messages', function ($msg) use ($handler, $socket) {
+    $socket->on('messages', function ($msg) use ($handler) {
       if ($handler === null) {
         return;
       }
@@ -71,14 +71,13 @@ class Kernel
 
   public function sendStatusMessage(string $status, Request $request)
   {
-    $response = new StatusResponse($status, $request);
-    $this->iopub_socket->send($response->toMessage($this->connection_details->key, $this->connection_details->signature_scheme));
+    $this->sendIOPubMessage(new StatusResponse($status, $request));
   }
 
-  public function sendExecuteResultMessage(int $execution_count, string $result, Request $request)
+  public function sendIOPubMessage(Response $response)
   {
-    $response = new ExecuteResultResponse($execution_count, $result, $request);
-    $this->iopub_socket->send($response->toMessage($this->connection_details->key, $this->connection_details->signature_scheme));
+    $message = $response->toMessage($this->connection_details->key, $this->connection_details->signature_scheme);
+    $this->iopub_socket->send($message);
   }
 
   public function sendShellMessage(Response $response)
@@ -89,8 +88,7 @@ class Kernel
 
   private function getConfig(array $config = [])
   {
-    // Mebbe there's a better way than this?
-    $dir = \tempnam(\sys_get_temp_dir(), 'psysh_shell_test_');
+    $dir = \tempnam(\sys_get_temp_dir(), 'jupyter_php_kernel');
     \unlink($dir);
 
     $defaults = [

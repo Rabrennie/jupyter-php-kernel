@@ -5,6 +5,7 @@ namespace JupyterPhpKernel\Handlers;
 use JupyterPhpKernel\Kernel;
 use JupyterPhpKernel\Requests\Request;
 use JupyterPhpKernel\Responses\ExecuteReplyResponse;
+use JupyterPhpKernel\Responses\ExecuteResultResponse;
 use JupyterPhpKernel\Responses\KernelInfoReplyResponse;
 use JupyterPhpKernel\Responses\Response;
 use Symfony\Component\Console\Output\StreamOutput;
@@ -39,7 +40,7 @@ class ShellMessageHandler
       \rewind($stream);
       $streamContents = \stream_get_contents($stream);
       $response = new ExecuteReplyResponse(++$this->kernel->execution_count, 'ok', $request);
-      $this->kernel->sendExecuteResultMessage($this->kernel->execution_count, $streamContents, $request);
+      $this->kernel->sendIOPubMessage(new ExecuteResultResponse($this->kernel->execution_count, $streamContents, $request));
       $this->kernel->sendShellMessage($response);
       $this->kernel->sendStatusMessage('idle', $request);
     }
