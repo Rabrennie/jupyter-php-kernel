@@ -7,6 +7,7 @@ use JupyterPhpKernel\Requests\Request;
 use JupyterPhpKernel\Responses\ExecuteReplyResponse;
 use JupyterPhpKernel\Responses\ExecuteResultResponse;
 use JupyterPhpKernel\Responses\KernelInfoReplyResponse;
+use Psy\Exception\FatalErrorException;
 use Symfony\Component\Console\Output\StreamOutput;
 
 class ShellMessageHandler
@@ -35,11 +36,15 @@ class ShellMessageHandler
             $output = $this->getOutput();
             $stream = $output->getStream();
             $this->kernel->shell->setOutput($output);
-            $this->kernel->shell->execute($request->content['code']);
-            \rewind($stream);
-            $streamContents = \stream_get_contents($stream);
+            try {
+                $ret = $this->kernel->shell->execute($request->content['code']);
+                \rewind($stream);
+                $output = \stream_get_contents($stream);
+            } catch (FatalErrorException $e) {
+                $output = $e->getMessage();
+            }
             $this->kernel->sendIOPubMessage(
-                new ExecuteResultResponse($this->kernel->execution_count, $streamContents, $request)
+                new ExecuteResultResponse($this->kernel->execution_count, $output, $request)
             );
             $this->kernel->sendShellMessage(new ExecuteReplyResponse(++$this->kernel->execution_count, 'ok', $request));
             $this->kernel->sendStatusMessage('idle', $request);
