@@ -3,6 +3,8 @@
 namespace JupyterPhpKernel\Handlers;
 
 use JupyterPhpKernel\Kernel;
+use JupyterPhpKernel\Responses\ExecuteReplyResponse;
+use JupyterPhpKernel\Responses\KernelInfoReplyResponse;
 use JupyterPhpKernel\Responses\Response;
 use Symfony\Component\Console\Output\StreamOutput;
 
@@ -28,27 +30,7 @@ class ShellMessageHandler
 
     if ($header['msg_type'] === self::KERNEL_INFO_REQUEST) {
       $this->kernel->sendStatusMessage('busy', $header);
-      $response = new Response(
-        Response::KERNEL_INFO_REPLY,
-        $this->kernel->session_id,
-        [
-          'protocol_version' => '5.3',
-          'implementation' => 'jupyter-php',
-          'implementation_version' => '0.1.0',
-          'banner' => 'Jupyter-PHP Kernel',
-          'language_info' => [
-            'name' => 'PHP',
-            'version' => \phpversion(),
-            'mimetype' => 'text/x-php',
-            'file_extension' => '.php',
-            'pygments_lexer' => 'PHP',
-          ],
-          'status' => 'ok',
-        ],
-        $header,
-        [],
-        $ids
-      );
+      $response = new KernelInfoReplyResponse($this->kernel->session_id, $header, $ids);
       $this->kernel->sendShellMessage($response);
       $this->kernel->sendStatusMessage('idle', $header);
     }
@@ -61,19 +43,8 @@ class ShellMessageHandler
       $this->kernel->shell->execute($content['code']);
       \rewind($stream);
       $streamContents = \stream_get_contents($stream);
-      // echo ($streamContents);
-      $response = new Response(
-        'execute_reply',
-        $this->kernel->session_id,
-        [
-          'execution_count' => ++$this->kernel->execution_count,
-          'status' => 'ok',
-        ],
-        $header,
-        [],
-        $ids
-      );
-      $this->kernel->sendExecuteResultMessage(['execution_count' => $this->kernel->execution_count, 'data' => ['text/plain' => $streamContents]], $header);
+      $response = new ExecuteReplyResponse(++$this->kernel->execution_count, 'ok', $this->kernel->session_id, $header, $ids);
+      $this->kernel->sendExecuteResultMessage($this->kernel->execution_count, $streamContents, $header);
       $this->kernel->sendShellMessage($response);
       $this->kernel->sendStatusMessage('idle', $header);
     }

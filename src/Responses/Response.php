@@ -8,13 +8,16 @@ use Ramsey\Uuid\Uuid;
 class Response
 {
   const KERNEL_INFO_REPLY = 'kernel_info_reply';
+  const STATUS = 'status';
+  const EXECUTE_REPLY = 'execute_reply';
+  const EXECUTE_RESULT = 'execute_result';
 
-  private string $type;
-  private array $content = [];
-  private array $header = [];
-  private array $parent_header = [];
-  private array $metadata = [];
-  private array $ids = [];
+  protected string $type;
+  protected array $content = [];
+  protected array $header = [];
+  protected array $parent_header = [];
+  protected array $metadata = [];
+  protected array $ids = [];
 
   public function __construct(string $type, string $session_id, array $content = [], array $parent_header = [], array $metadata = [], array $ids = [])
   {

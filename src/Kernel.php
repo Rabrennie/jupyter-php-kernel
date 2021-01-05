@@ -3,7 +3,9 @@
 namespace JupyterPhpKernel;
 
 use JupyterPhpKernel\Handlers\ShellMessageHandler;
+use JupyterPhpKernel\Responses\ExecuteResultResponse;
 use JupyterPhpKernel\Responses\Response;
+use JupyterPhpKernel\Responses\StatusResponse;
 use React\EventLoop\Factory;
 use React\EventLoop\LoopInterface;
 use React\ZMQ\Context;
@@ -68,14 +70,13 @@ class Kernel
 
   public function sendStatusMessage(string $status, array $header)
   {
-    $response = new Response('status', $this->session_id, ['execution_state' => $status], $header);
+    $response = new StatusResponse($status, $this->session_id, $header);
     $this->iopub_socket->send($response->toMessage($this->connection_details->key, $this->connection_details->signature_scheme));
   }
 
-  public function sendExecuteResultMessage(array $content, array $header)
+  public function sendExecuteResultMessage(int $execution_count, string $result, array $header)
   {
-
-    $response = new Response('execute_result', $this->session_id, $content, $header);
+    $response = new ExecuteResultResponse($execution_count, $result, $this->session_id, $header);
     $this->iopub_socket->send($response->toMessage($this->connection_details->key, $this->connection_details->signature_scheme));
   }
 
