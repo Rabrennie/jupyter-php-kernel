@@ -4,7 +4,6 @@ namespace JupyterPhpKernel;
 
 use JupyterPhpKernel\Handlers\ShellMessageHandler;
 use JupyterPhpKernel\Requests\Request;
-use JupyterPhpKernel\Responses\ExecuteResultResponse;
 use JupyterPhpKernel\Responses\Response;
 use JupyterPhpKernel\Responses\StatusResponse;
 use React\EventLoop\Factory;
@@ -14,6 +13,7 @@ use Ramsey\Uuid\Uuid;
 use React\ZMQ\SocketWrapper;
 use Psy\Shell;
 use Psy\Configuration;
+use ZMQ;
 
 class Kernel
 {
@@ -41,14 +41,14 @@ class Kernel
         $this->context = new Context($this->loop);
 
         $this->shell_socket = $this->createSocket(
-            \ZMQ::SOCKET_ROUTER,
+            ZMQ::SOCKET_ROUTER,
             $this->connection_details->shell_address,
             new ShellMessageHandler($this)
         );
-        $this->iopub_socket = $this->createSocket(\ZMQ::SOCKET_PUB, $this->connection_details->iopub_address);
-        $stdin_socket = $this->createSocket(\ZMQ::SOCKET_ROUTER, $this->connection_details->stdin_address);
-        $control_socket = $this->createSocket(\ZMQ::SOCKET_ROUTER, $this->connection_details->control_address);
-        $hb_socket = $this->createSocket(\ZMQ::SOCKET_REP, $this->connection_details->hb_address);
+        $this->iopub_socket = $this->createSocket(ZMQ::SOCKET_PUB, $this->connection_details->iopub_address);
+        $stdin_socket = $this->createSocket(ZMQ::SOCKET_ROUTER, $this->connection_details->stdin_address);
+        $control_socket = $this->createSocket(ZMQ::SOCKET_ROUTER, $this->connection_details->control_address);
+        $hb_socket = $this->createSocket(ZMQ::SOCKET_REP, $this->connection_details->hb_address);
 
         $this->loop->run();
     }
@@ -92,8 +92,8 @@ class Kernel
 
     private function getConfig(array $config = [])
     {
-        $dir = \tempnam(\sys_get_temp_dir(), 'jupyter_php_kernel');
-        \unlink($dir);
+        $dir = tempnam(\sys_get_temp_dir(), 'jupyter_php_kernel');
+        unlink($dir);
 
         $defaults = [
             'configDir'  => $dir,

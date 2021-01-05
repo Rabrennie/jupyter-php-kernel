@@ -8,7 +8,6 @@ use JupyterPhpKernel\Requests\Request;
 use JupyterPhpKernel\Responses\ExecuteReplyResponse;
 use JupyterPhpKernel\Responses\ExecuteResultResponse;
 use JupyterPhpKernel\Responses\KernelInfoReplyResponse;
-use Psy\Exception\FatalErrorException;
 use Symfony\Component\Console\Output\StreamOutput;
 
 class ShellMessageHandler
@@ -40,8 +39,8 @@ class ShellMessageHandler
             try {
                 $ret = $this->kernel->shell->execute($request->content['code']);
                 $this->kernel->shell->writeReturnValue($ret, true);
-                \rewind($stream);
-                $output = \stream_get_contents($stream);
+                rewind($stream);
+                $output = stream_get_contents($stream);
             } catch (Exception $e) {
                 $output = $e->getMessage();
             }
@@ -55,7 +54,7 @@ class ShellMessageHandler
 
     private function getOutput()
     {
-        $stream = \fopen('php://memory', 'w+');
+        $stream = fopen('php://memory', 'w+');
         $this->streams[] = $stream;
 
         $output = new StreamOutput($stream, StreamOutput::VERBOSITY_NORMAL, false);
