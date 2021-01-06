@@ -2,18 +2,21 @@
 
 namespace JupyterPhpKernel\Handlers;
 
-use Exception;
+use JupyterPhpKernel\Actions\Action;
+use JupyterPhpKernel\Actions\ExecuteAction;
+use JupyterPhpKernel\Actions\KernelInfoAction;
 use JupyterPhpKernel\Kernel;
 use JupyterPhpKernel\Requests\Request;
-use JupyterPhpKernel\Responses\ExecuteReplyResponse;
-use JupyterPhpKernel\Responses\ExecuteResultResponse;
-use JupyterPhpKernel\Responses\KernelInfoReplyResponse;
-use Symfony\Component\Console\Output\StreamOutput;
 
 class ShellMessageHandler
 {
     public const KERNEL_INFO_REQUEST = 'kernel_info_request';
     public const EXECUTE_REQUEST = 'execute_request';
+
+    protected const ACTION_MAP = [
+        self::KERNEL_INFO_REQUEST => KernelInfoAction::class,
+        self::EXECUTE_REQUEST => ExecuteAction::class,
+    ];
 
     private Kernel $kernel;
 
@@ -24,41 +27,14 @@ class ShellMessageHandler
 
     public function handle(Request $request)
     {
-        if ($request->header['msg_type'] === self::KERNEL_INFO_REQUEST) {
-            $this->kernel->sendStatusMessage('busy', $request);
-            $response = new KernelInfoReplyResponse($request);
-            $this->kernel->sendShellMessage($response);
-            $this->kernel->sendStatusMessage('idle', $request);
+        $msg_type = $request->header['msg_type'];
+        if (!isset(self::ACTION_MAP[$msg_type])) {
+            return;
         }
 
-        if ($request->header['msg_type'] === self::EXECUTE_REQUEST) {
-            $this->kernel->sendStatusMessage('busy', $request);
-            $output = $this->getOutput();
-            $stream = $output->getStream();
-            $this->kernel->shell->setOutput($output);
-            try {
-                $ret = $this->kernel->shell->execute($request->content['code']);
-                $this->kernel->shell->writeReturnValue($ret, true);
-                rewind($stream);
-                $output = stream_get_contents($stream);
-            } catch (Exception $e) {
-                $output = $e->getMessage();
-            }
-            $this->kernel->sendIOPubMessage(
-                new ExecuteResultResponse($this->kernel->execution_count, $output, $request)
-            );
-            $this->kernel->sendShellMessage(new ExecuteReplyResponse(++$this->kernel->execution_count, 'ok', $request));
-            $this->kernel->sendStatusMessage('idle', $request);
-        }
-    }
-
-    private function getOutput()
-    {
-        $stream = fopen('php://memory', 'w+');
-        $this->streams[] = $stream;
-
-        $output = new StreamOutput($stream, StreamOutput::VERBOSITY_NORMAL, false);
-
-        return $output;
+        $action_class = self::ACTION_MAP[$msg_type];
+        /** @var Action $action */
+        $action = new $action_class($this->kernel);
+        $action->execute($request);
     }
 }

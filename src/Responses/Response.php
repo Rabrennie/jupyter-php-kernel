@@ -6,7 +6,7 @@ use DateTime;
 use JupyterPhpKernel\Requests\Request;
 use Ramsey\Uuid\Uuid;
 
-class Response
+abstract class Response
 {
     public const KERNEL_INFO_REPLY = 'kernel_info_reply';
     public const STATUS = 'status';
