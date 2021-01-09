@@ -17,7 +17,7 @@ class ExecuteAction extends Action
         $this->kernel->shell->setOutput($output);
         try {
             $ret = $this->kernel->shell->execute($request->content['code']);
-            $this->kernel->shell->writeReturnValue($ret, true);
+            $this->kernel->shell->writeReturnValue($ret, false);
             rewind($stream);
             $output = stream_get_contents($stream);
         } catch (Exception $e) {
