@@ -30,7 +30,7 @@ class Installer
     protected static function getKernelJSON()
     {
         return [
-            "argv" => ["jupyter-php-kernerl -r -c", "{connection_file}"],
+            "argv" => ["jupyter-php-kernel" , "-r",  "-c", "{connection_file}"],
             "display_name" => "PHP",
             "language" => "php"
         ];
