@@ -22,13 +22,11 @@ RUN adduser --disabled-password \
     --uid ${NB_UID} \
     ${NB_USER}
 
-COPY ./ /usr/local/share/jupyter/kernels/php/
-RUN chown -R ${NB_USER} /usr/local/share/jupyter/kernels/php/
-
 USER ${NB_UID}
 
 WORKDIR /usr/local/share/jupyter/kernels/php/
-RUN php /usr/local/bin/composer install --no-interaction --no-dev
+RUN composer global require rabrennie/jupyter-php-kernel
+RUN jupyter-php-kernel --install
 
 # Run the notebook
 WORKDIR ${HOME}
