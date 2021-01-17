@@ -9,7 +9,7 @@ class Installer
         $kernel_path = self::getInstallPath();
 
         if (!is_dir($kernel_path)) {
-            mkdir($kernel_path);
+            mkdir($kernel_path, 0755, true);
         }
 
         file_put_contents($kernel_path . '/kernel.json', json_encode(self::getKernelJSON()));
