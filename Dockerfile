@@ -24,7 +24,7 @@ RUN adduser --disabled-password \
 
 USER ${NB_UID}
 
-WORKDIR /usr/local/share/jupyter/kernels/php/
+ENV PATH="/home/jovyan/.config/composer/vendor/bin:$PATH"
 RUN composer global require rabrennie/jupyter-php-kernel
 RUN jupyter-php-kernel --install
 
