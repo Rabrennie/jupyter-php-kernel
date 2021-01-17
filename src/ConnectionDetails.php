@@ -4,6 +4,7 @@ namespace JupyterPhpKernel;
 
 class ConnectionDetails
 {
+    private string $connection_file_path;
     private string $connection_file;
     private array $connection_details;
 
@@ -17,10 +18,14 @@ class ConnectionDetails
     public string $signature_scheme;
     public string $key;
 
+    public function __construct(string $connection_file_path)
+    {
+        $this->connection_file_path = $connection_file_path;
+    }
+
     public function read()
     {
-        global $argv;
-        $this->connection_file = file_get_contents($argv[1]);
+        $this->connection_file = file_get_contents($this->connection_file_path);
         $this->connection_details = json_decode($this->connection_file, true);
 
         $this->ip = $this->connection_details['ip'];

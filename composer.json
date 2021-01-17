@@ -17,5 +17,6 @@
         "psr-4": {
             "JupyterPhpKernel\\": "src/"
         }
-    }
+    },
+    "bin": ["bin/jupyter-php-kernel"]
 }
