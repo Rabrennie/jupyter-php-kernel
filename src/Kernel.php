@@ -2,6 +2,9 @@
 
 namespace JupyterPhpKernel;
 
+use JupyterPhpKernel\Handlers\HbMessageHandler;
+use JupyterPhpKernel\Handlers\IMessageHandler;
+use JupyterPhpKernel\Handlers\IRequestHandler;
 use JupyterPhpKernel\Handlers\ShellMessageHandler;
 use JupyterPhpKernel\Requests\Request;
 use JupyterPhpKernel\Responses\Response;
@@ -24,6 +27,7 @@ class Kernel
 
     private SocketWrapper $iopub_socket;
     private SocketWrapper $shell_socket;
+    private SocketWrapper $hb_socket;
 
     public int $execution_count = 0;
     public Shell $shell;
@@ -46,9 +50,13 @@ class Kernel
             new ShellMessageHandler($this)
         );
         $this->iopub_socket = $this->createSocket(ZMQ::SOCKET_PUB, $this->connection_details->iopub_address);
+        $this->hb_socket = $this->createSocket(
+            ZMQ::SOCKET_REP,
+            $this->connection_details->hb_address,
+            new HbMessageHandler($this)
+        );
         $stdin_socket = $this->createSocket(ZMQ::SOCKET_ROUTER, $this->connection_details->stdin_address);
         $control_socket = $this->createSocket(ZMQ::SOCKET_ROUTER, $this->connection_details->control_address);
-        $hb_socket = $this->createSocket(ZMQ::SOCKET_REP, $this->connection_details->hb_address);
 
         $this->loop->run();
     }
@@ -62,12 +70,16 @@ class Kernel
             echo ($e->getMessage());
         });
 
-        $socket->on('messages', function ($msg) use ($handler) {
+        $socket->on('messages', function ($message) use ($handler) {
             if ($handler === null) {
                 return;
             }
 
-            $handler->handle(new Request($msg, $this->session_id));
+            if ($handler instanceof IMessageHandler) {
+                $handler->handle($message);
+            } elseif ($handler instanceof IRequestHandler) {
+                $handler->handle(new Request($message, $this->session_id));
+            }
         });
 
         return $socket;
@@ -88,6 +100,11 @@ class Kernel
     {
         $message = $response->toMessage($this->connection_details->key, $this->connection_details->signature_scheme);
         $this->shell_socket->send($message);
+    }
+
+    public function sendHbMessage($message)
+    {
+        $this->hb_socket->send($message);
     }
 
     private function getConfig(array $config = [])

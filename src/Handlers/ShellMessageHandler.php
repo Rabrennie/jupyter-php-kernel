@@ -8,7 +8,7 @@ use JupyterPhpKernel\Actions\KernelInfoAction;
 use JupyterPhpKernel\Kernel;
 use JupyterPhpKernel\Requests\Request;
 
-class ShellMessageHandler
+class ShellMessageHandler extends MessageHandler implements IRequestHandler
 {
     public const KERNEL_INFO_REQUEST = 'kernel_info_request';
     public const EXECUTE_REQUEST = 'execute_request';
@@ -17,13 +17,6 @@ class ShellMessageHandler
         self::KERNEL_INFO_REQUEST => KernelInfoAction::class,
         self::EXECUTE_REQUEST => ExecuteAction::class,
     ];
-
-    private Kernel $kernel;
-
-    public function __construct(Kernel $kernel)
-    {
-        $this->kernel = $kernel;
-    }
 
     public function handle(Request $request)
     {
