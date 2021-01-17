@@ -1,4 +1,5 @@
 {
+    "name": "rabrennie/jupyter-php-kernel",
     "require": {
         "ext-zmq": "*",
         "psy/psysh": "^0.10.5",
