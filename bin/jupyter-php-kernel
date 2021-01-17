@@ -9,8 +9,6 @@ if (file_exists(__DIR__.'/../../../autoload.php')) {
 
 $opts = getopt('irc:', ['install', 'run', 'connection_file:']);
 
-var_dump($opts);
-
 if (isset($opts['install']) || isset($opts['i'])) {
     JupyterPhpKernel\Installer\Installer::install();
     exit(0);
