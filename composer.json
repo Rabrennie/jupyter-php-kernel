@@ -1,5 +1,7 @@
 {
     "name": "rabrennie/jupyter-php-kernel",
+    "description": "PHP Kernel for Jupyter Notebooks",
+    "license": "MIT",
     "require": {
         "ext-zmq": "*",
         "psy/psysh": "^0.10.5",
