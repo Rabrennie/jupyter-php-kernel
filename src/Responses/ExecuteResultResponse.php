@@ -13,6 +13,7 @@ class ExecuteResultResponse extends Response
             'data' => [
                 'text/plain' => $result
             ],
+            'metadata' => (object)[],
         ];
 
         parent::__construct(self::EXECUTE_RESULT, $request, $content);
