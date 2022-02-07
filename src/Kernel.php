@@ -117,6 +117,7 @@ class Kernel
             'dataDir'    => $dir,
             'runtimeDir' => $dir,
             'colorMode'  => Configuration::COLOR_MODE_FORCED,
+            'rawOutput'  => true,
         ];
 
         return new Configuration(\array_merge($defaults, $config));
