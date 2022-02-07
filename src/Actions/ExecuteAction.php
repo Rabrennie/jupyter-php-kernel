@@ -16,8 +16,9 @@ class ExecuteAction extends Action
         $stream = $output->getStream();
         $this->kernel->shell->setOutput($output);
         try {
-            $ret = $this->kernel->shell->execute($request->content['code']);
-            $this->kernel->shell->writeReturnValue($ret, false);
+            $code = $this->cleanCode($request->content['code']);
+            $ret = $this->kernel->shell->execute($code);
+            $this->kernel->shell->writeReturnValue($ret, true);
             rewind($stream);
             $output = stream_get_contents($stream);
         } catch (Exception $e) {
@@ -34,5 +35,10 @@ class ExecuteAction extends Action
     {
         $stream = fopen('php://memory', 'w+');
         return new StreamOutput($stream, StreamOutput::VERBOSITY_NORMAL, false);
+    }
+
+    private function cleanCode(string $code)
+    {
+        return preg_replace('/^(<\?(php)?)*(\?>)*/m', '', trim($code));
     }
 }
